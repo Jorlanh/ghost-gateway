@@ -9,12 +9,13 @@ spring:
       discovery:
         locator:
           enabled: true # Permite encontrar microsserviços automaticamente
+          
       # As rotas de tráfego (O Mapa do Porteiro)
       routes:
         - id: core-route
           uri: lb://ghost-core # "lb" = Load Balancer (usa o nome do serviço)
           predicates:
-            - Path=/api/core/**
+            - Path=/api/v1/ghost/** # <-- CORRIGIDO AQUI!
             
         - id: integrations-route
           uri: lb://ghost-integrations
