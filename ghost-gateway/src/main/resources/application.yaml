@@ -1,14 +1,6 @@
 server:
   port: 8080 # Porta central de entrada (Frontend -> Gateway)
 
-# ==========================================
-# VARIÁVEIS DE ROTEAMENTO (INJETADAS NO JAVA)
-# ==========================================
-ghost:
-  routes:
-    core: ${CORE_URL:lb://GHOST-CORE} 
-    integrations: ${INTEGRATIONS_URL:lb://GHOST-INTEGRATIONS}
-
 spring:
   application:
     name: ghost-gateway
@@ -22,10 +14,27 @@ spring:
         jwt:
           jwk-set-uri: https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com
 
+  # ==========================================
+  # NÚCLEO DE ROTEAMENTO (WEBFLUX DE ELITE)
+  # ==========================================
   cloud:
-    discovery:
-      locator:
-        enabled: true 
+    gateway:
+      discovery:
+        locator:
+          enabled: true 
+          lower-case-service-id: true
+          
+      # AQUI ESTÁ A PONTE NEURAL OFICIAL:
+      routes:
+        - id: core-route
+          uri: lb://GHOST-CORE 
+          predicates:
+            - Path=/api/v1/ghost/**
+            
+        - id: integrations-route
+          uri: lb://GHOST-INTEGRATIONS
+          predicates:
+            - Path=/api/integrations/**
 
   # ==========================================
   # CONEXÃO COM O REDIS (DOCKER)
